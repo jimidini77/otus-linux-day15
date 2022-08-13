@@ -2,15 +2,14 @@
 # vim: set ft=ruby :
 
 MACHINES = {
-  :otus => {
+  :nginx => {
         :box_name => "centos/7",
-#        :box_version => "2004.01",
-        :ip_addr => '192.168.11.101',
-  },
+        :ip_addr => '192.168.56.150'
+  }
 }
 
 Vagrant.configure("2") do |config|
-#config.vm.synced_folder ".", "/vagrant", disabled: true
+
   MACHINES.each do |boxname, boxconfig|
 
       config.vm.define boxname do |box|
@@ -18,15 +17,18 @@ Vagrant.configure("2") do |config|
           box.vm.box = boxconfig[:box_name]
           box.vm.host_name = boxname.to_s
 
-          #box.vm.network "forwarded_port", guest: 3260, host: 3260+offset
-
           box.vm.network "private_network", ip: boxconfig[:ip_addr]
 
           box.vm.provider :virtualbox do |vb|
-            	  vb.customize ["modifyvm", :id, "--memory", "1024"]
-		  end
- 	  box.vm.provision "shell", path: "init.sh"
+            vb.customize ["modifyvm", :id, "--memory", "200"]
+          end
+          
+          box.vm.provision "shell", inline: <<-SHELL
+            mkdir -p ~root/.ssh; cp ~vagrant/.ssh/auth* ~root/.ssh
+            sed -i '65s/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+            systemctl restart sshd
+          SHELL
+
       end
   end
 end
-

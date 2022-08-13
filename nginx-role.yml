@@ -1,0 +1,6 @@
+---
+- name: NGINX-role | Install and configure NGINX using role
+  hosts: nginx
+  become: true
+  roles:
+    - role: role-01

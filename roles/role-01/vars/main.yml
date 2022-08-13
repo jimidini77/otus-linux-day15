@@ -1,0 +1,3 @@
+---
+# vars file for role-01
+nginx_listen_port: 8080
